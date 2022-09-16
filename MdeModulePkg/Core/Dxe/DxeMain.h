@@ -1538,6 +1538,8 @@ CoreCreateEventInternal (
   @retval EFI_SUCCESS            The event has been set to be signaled at the
                                  requested time
   @retval EFI_INVALID_PARAMETER  Event or Type is not valid
+  @retval EFI_NOT_READY          Type is not TimerCancel, TriggerTime is 0, but
+                                 EFI_TIMER_ARCH_PROTOCOL is not installed yet
 
 **/
 EFI_STATUS

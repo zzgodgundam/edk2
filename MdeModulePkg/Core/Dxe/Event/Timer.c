@@ -229,6 +229,8 @@ CoreTimerTick (
   @retval EFI_SUCCESS            The event has been set to be signaled at the
                                  requested time
   @retval EFI_INVALID_PARAMETER  Event or Type is not valid
+  @retval EFI_NOT_READY          Type is not TimerCancel, TriggerTime is 0, but
+                                 EFI_TIMER_ARCH_PROTOCOL is not installed yet
 
 **/
 EFI_STATUS
@@ -255,6 +257,14 @@ CoreSetTimer (
     return EFI_INVALID_PARAMETER;
   }
 
+  if ((Type != TimerCancel) && (TriggerTime == 0)) {
+    if (gTimer) {
+      gTimer->GetTimerPeriod (gTimer, &TriggerTime);
+    } else {
+      return EFI_NOT_READY;
+    }
+  }
+
   CoreAcquireLock (&mEfiTimerLock);
 
   //
@@ -270,10 +280,6 @@ CoreSetTimer (
 
   if (Type != TimerCancel) {
     if (Type == TimerPeriodic) {
-      if (TriggerTime == 0) {
-        gTimer->GetTimerPeriod (gTimer, &TriggerTime);
-      }
-
       Event->Timer.Period = TriggerTime;
     }
 
